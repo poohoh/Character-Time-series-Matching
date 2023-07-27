@@ -1,7 +1,7 @@
 imutils==0.5.4
 joblib==1.1.0
 matplotlib
-numpy
+numpy==1.21
 oauthlib==3.2.0
 opencv-python==4.5.5.64
 packaging==21.3
@@ -12,4 +12,10 @@ seaborn==0.11.2
 tdqm==0.0.1
 tensorboard==2.9.0
 thop==0.0.31.post2005241907
+<<<<<<< HEAD
 tqdm==4.64.0
+=======
+torch==1.8.1
+torchvision==0.9.1
+tqdm==4.64.0
+>>>>>>> ca8561d793216fb10b9840391d03ea94d769a8f2

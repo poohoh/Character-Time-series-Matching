@@ -1,12 +1,12 @@
 # Character-Time-series-Matching-For-Robust-License-Plate-Recognition
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/character-time-series-matching-for-robust/license-plate-recognition-on-ufpr-alpr)](https://paperswithcode.com/sota/license-plate-recognition-on-ufpr-alpr?p=character-time-series-matching-for-robust)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/character-time-series-matching-for-robust-1/license-plate-recognition-on-ufpr-alpr)](https://paperswithcode.com/sota/license-plate-recognition-on-ufpr-alpr?p=character-time-series-matching-for-robust-1)
 ## Setup
 ```python
 pip install -r requirement.txt
 ```
 ## UFPR-ALPR:
 
-Download 60 cropped tracks using YoloV5m: [test](https://drive.google.com/file/d/1k1AtPXq7nVQDYBUW3luVei2S0jzvXfKx/view?usp=share_link)
+Download 60 cropped tracks using YoloV5m: [test](https://drive.google.com/file/d/1U429KxS6SvoOMGoAGw0yQaDlLmBrLFgE/view?usp=sharing)
 ```python
 python3 evaluate.py
 ```
