@@ -55,13 +55,14 @@ class Detection:
                                             max_det=max_det)
         results=[]
         for i, det in enumerate(detections):
-            # det[:, :4]=scale_coords(resized_img.shape,det[:, :4],image.shape).round()
-            det=det.tolist()
-            if len(det):
-                for *xyxy, conf, cls in det:
-                    # xc,yc,w_,h_=(xyxy[0]+xyxy[2])/2,(xyxy[1]+xyxy[3])/2,(xyxy[2]-xyxy[0]),(xyxy[3]-xyxy[1])
-                    result=[self.names[int(cls)], str(conf), (xyxy[0],xyxy[1],xyxy[2],xyxy[3])]
-                    results.append(result)
+                # det[:, :4]=scale_coords(resized_img.shape,det[:, :4],image.shape).round()
+                det=det.tolist()
+                if len(det):
+                    for *xyxy, conf, cls in det:
+                        if "car" in self.names[int(cls)]:
+                            # xc,yc,w_,h_=(xyxy[0]+xyxy[2])/2,(xyxy[1]+xyxy[3])/2,(xyxy[2]-xyxy[0]),(xyxy[3]-xyxy[1])
+                            result=[self.names[int(cls)], str(conf), (xyxy[0],xyxy[1],xyxy[2],xyxy[3])]
+                            results.append(result)
         # print(results)
         return results, resized_img
         
@@ -113,7 +114,7 @@ class Detection:
 def parse_opt():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', nargs='+', type=str, default='object.pt', help='model path or triton URL')
-    parser.add_argument('--source', type=str, default='Vietnamese_imgs', help='file/dir')
+    parser.add_argument('--source', type=str, default='input', help='file/dir')
     parser.add_argument('--imgsz', '--img', '--img-size', nargs='+', type=int, default=[1280], help='inference size h,w')
     parser.add_argument('--conf-thres', type=float, default=0.1, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold')
@@ -136,13 +137,27 @@ if __name__ == '__main__':
     img_names=os.listdir(path)
 
     for img_name in img_names:
+        filepath = os.path.join(os.getcwd() + img_name)
         img=cv2.imread(os.path.join(path,img_name))
         results, resized_img=char_model.detect(img.copy())
+        i = 0
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
         for name,conf,box in results:
+            y1, y2, x1, x2 = int(box[1]) - 20, int(box[3]) + 20, int(box[0]) - 20, int(box[2]) + 20
+            height = img.shape[0]
+            width = img.shape[1]
+            y1, y2, x1, x2 = max(0, y1), min(height, y2), max(0, x1), min(width, x2)
+            crop_img = resized_img[y1:y2, x1:x2]
+            save_path = os.path.join(filepath, img_name[:-4]+'_'+ str(i) + '.png')
+            cv2.imwrite(save_path, crop_img)
+            i += 1
+            '''
             resized_img=cv2.putText(resized_img, "{}".format(name), (int(box[0]), int(box[1])-3),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                                     (255, 0, 255), 2)
             resized_img = cv2.rectangle(resized_img, (int(box[0]),int(box[1])), (int(box[2]),int(box[3])), (0,0,255), 1)
+            '''
         if not os.path.exists(os.path.join('out')):
             os.makedirs(os.path.join('out'))
         cv2.imwrite(os.path.join('out',img_name),resized_img)
