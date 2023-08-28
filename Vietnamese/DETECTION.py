@@ -12,7 +12,7 @@ from models.experimental import attempt_load
 import cv2
 
 class Detection:
-    def __init__(self, weights_path='.pt',size=(640,640),device='cpu',iou_thres=None,conf_thres=None):
+    def __init__(self, weights_path='.pt',size=(640,640),device='cuda',iou_thres=None,conf_thres=None):
         cwd = os.path.dirname(__file__)
         self.device=device
         self.char_model, self.names = self.load_model(weights_path)
@@ -119,7 +119,7 @@ def parse_opt():
     parser.add_argument('--conf-thres', type=float, default=0.1, help='confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold')
     parser.add_argument('--max-det', type=int, default=1000, help='maximum detections per image')
-    parser.add_argument('--device', default='cpu', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
+    parser.add_argument('--device', default='cuda', help='cuda device, i.e. 0 or 0,1,2,3 or cpu')
     opt = parser.parse_args()
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
 
@@ -132,25 +132,41 @@ if __name__ == '__main__':
     opt = parse_opt()
     
     char_model=Detection(size=opt.imgsz,weights_path=opt.weights,device=opt.device,iou_thres=opt.iou_thres,conf_thres=opt.conf_thres)
-    path=opt.source
+
+    # path=opt.source
+    path = os.path.abspath("C:\\annotation\\dataset\\230719_camera(9)_7-8\\output1")  # 이 부분 수정
+    out_path = os.path.join(path, '..\\output1_cropped')  # 이 부분 수정
 
     img_names=os.listdir(path)
 
+    os.makedirs(os.path.join('out'), exist_ok=True)
+    os.makedirs(out_path, exist_ok=True)
+
     for img_name in img_names:
-        filepath = os.path.join(os.getcwd() + img_name)
+        # filepath = os.path.join(os.getcwd(), 'out', img_name) # 확장자 삭제 `img_name[:-4]` 또는 os.path.splitext()
+        filepath = os.path.join(os.getcwd(), 'out')
+
         img=cv2.imread(os.path.join(path,img_name))
+
         results, resized_img=char_model.detect(img.copy())
+
+        if results:
+            os.makedirs(filepath, exist_ok=True)
+
         i = 0
-        if not os.path.exists(filepath):
-            os.makedirs(filepath)
         for name,conf,box in results:
-            y1, y2, x1, x2 = int(box[1]) - 20, int(box[3]) + 20, int(box[0]) - 20, int(box[2]) + 20
+            y1, y2, x1, x2 = int(box[1]) - 5, int(box[3]) + 5, int(box[0]) - 5, int(box[2]) + 5
             height = img.shape[0]
             width = img.shape[1]
             y1, y2, x1, x2 = max(0, y1), min(height, y2), max(0, x1), min(width, x2)
             crop_img = resized_img[y1:y2, x1:x2]
-            save_path = os.path.join(filepath, img_name[:-4]+'_'+ str(i) + '.png')
-            cv2.imwrite(save_path, crop_img)
+
+            #save_path = os.path.join(filepath, img_name[:-4]+'_'+ str(i) + '.png')
+            save_path = os.path.join(out_path, img_name[:-4]+'_'+ str(i) + '.png')  # 이 부분 수정
+
+            if crop_img.size:
+                cv2.imwrite(save_path, crop_img)
+
             i += 1
             '''
             resized_img=cv2.putText(resized_img, "{}".format(name), (int(box[0]), int(box[1])-3),
@@ -158,6 +174,9 @@ if __name__ == '__main__':
                                     (255, 0, 255), 2)
             resized_img = cv2.rectangle(resized_img, (int(box[0]),int(box[1])), (int(box[2]),int(box[3])), (0,0,255), 1)
             '''
-        if not os.path.exists(os.path.join('out')):
-            os.makedirs(os.path.join('out'))
-        cv2.imwrite(os.path.join('out',img_name),resized_img)
+
+        # print('image saved:', filepath)
+        print('completed:', os.path.splitext(img_name)[0])
+
+        # cv2.imwrite(os.path.join('out',img_name),resized_img)
+
