@@ -204,10 +204,12 @@ def read_files(path, char_model):
 
 def detect_car(path, char_model):
     images = sorted(list(f for f in os.listdir(path) if f.endswith('.png') or f.endswith('.jpg')))
+    if not images:
+        return
 
     print(f'processing: {path}')
 
-    out_path = os.path.join(path, '..', 'detect', f'{os.path.split(path)[-1]}_detect')
+    out_path = os.path.join(path, '..', 'detect', f'{os.path.split(path)[-1]}')
     os.makedirs(out_path, exist_ok=True)
 
     i = 0
@@ -218,11 +220,15 @@ def detect_car(path, char_model):
 
         # print(f'processing: {path + image}')
 
-        if results:
-            cv2.imwrite(os.path.join(out_path, f'{i:06d}.png'), img)
-            # print(f'image saved: {image}')
+        for name, conf, box in results:
+            x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
 
-        i += 1
+            if (x2 - x1 > 50) and (y2 - y1 > 50):  # 50 x 50 이상인 객체가 있을 때에만 이미지 저장
+                cv2.imwrite(os.path.join(out_path, f'{i:06d}.png'), img)
+                i += 1
+                break
+
+
     # print('finished')
 
 
