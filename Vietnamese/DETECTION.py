@@ -222,8 +222,10 @@ def detect_car(path, char_model):
 
         for name, conf, box in results:
             x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+            width = x2 - x1
+            height = y2 - y1
 
-            if (x2 - x1 > 50) and (y2 - y1 > 50):  # 50 x 50 이상인 객체가 있을 때에만 이미지 저장
+            if (width > 100) and (height > 100):  # 일정 크기 이상인 객체가 있을 때에만 이미지 저장
                 cv2.imwrite(os.path.join(out_path, f'{i:06d}.png'), img)
                 i += 1
                 break
@@ -232,5 +234,5 @@ def detect_car(path, char_model):
     # print('finished')
 
 
-root_path = 'C:/Users/KimJunha/Desktop/vision nerf vietnam/input/D3/5'
+root_path = 'C:/Users/KimJunha/Desktop/vision nerf vietnam/input/D9/4'
 retrieve_images(root_path)
